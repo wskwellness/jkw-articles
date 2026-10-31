@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Publish (or update) one article's HTML galley.
 #   scripts/publish.sh <year> <id> ["commit message"]
-# Copies the article's published HTML from jkw-manuscripts into vNiN/<id>/index.html,
+# Copies the article's published HTML and PDF from jkw-manuscripts into vNiN/<id>/index.html,
 # rebuilds the landing page, commits and pushes. Live on the site about a minute later.
 set -euo pipefail
 YEAR=${1:?usage: publish.sh <year> <id> [message]}; ID=${2:?usage: publish.sh <year> <id> [message]}
@@ -22,9 +22,13 @@ ISSUE=$(grep -o 'jkw\.v[0-9]*i[0-9]*\.'"$ID" "$SRC" | head -1 | sed -E 's/^jkw\.
 
 mkdir -p "$REPO/$ISSUE/$ID"
 cp "$SRC" "$REPO/$ISSUE/$ID/index.html"
+PDF="$(dirname "$SRC")/index.pdf"
+[ -f "$PDF" ] && cp "$PDF" "$REPO/$ISSUE/$ID/index.pdf"
+# The HTML's "Other formats" link points at the PDF next to it
+sed -i '' -E 's#<i class="bi bi-file-pdf"></i>PDF \(jkw\)#<i class="bi bi-file-pdf"></i>PDF#; s#href="jkw[0-9]+-[0-9]+\.pdf"#href="index.pdf"#' "$REPO/$ISSUE/$ID/index.html"
 python3 "$REPO/scripts/build_index.py"
 cd "$REPO"
-git add "$ISSUE/$ID/index.html" index.html
+git add "$ISSUE/$ID" index.html
 if git diff --cached --quiet; then echo "No changes for $ID."; exit 0; fi
 git commit -m "$MSG"
 git push

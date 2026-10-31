@@ -23,7 +23,8 @@ for issue in sorted(issues, reverse=True):
         doi = f"10.56980/jkw.{issue}.{art}"
         parts.append(
             f'<li><a href="{issue}/{art}/">{html.escape(title)}</a>'
-            f'<br><span class="doi"><a href="https://doi.org/{doi}">doi.org/{doi}</a></span></li>'
+            f'<br><span class="doi"><a href="{issue}/{art}/index.pdf">PDF</a> &middot; '
+            f'<a href="https://doi.org/{doi}">doi.org/{doi}</a></span></li>'
         )
     parts.append("</ul>")
 
